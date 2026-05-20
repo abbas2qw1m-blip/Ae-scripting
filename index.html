@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER UI - أداة التحكم الشاملة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* الحاوية الرئيسية */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* شريط العنوان */
+        .title-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title-icon {
+            font-size: 28px;
+        }
+
+        .title-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .title-version {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 18px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* تبويبات */
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 0 20px;
+            gap: 5px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        /* محتوى التبويبات */
+        .tab-content {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* اللوحات */
+        .panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* مجموعات الإدخال */
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* أزرار التحكم الرقمية */
+        .number-control {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .number-control input {
+            width: 100px;
+            text-align: center;
+        }
+
+        .number-btn {
+            width: 32px;
+            height: 32px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .number-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        /* شريط التمرير */
+        .slider-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-value {
+            min-width: 45px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* شريط تمرير عمودي */
+        .v-slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"].vertical {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 8px;
+            height: 100px;
+        }
+
+        /* مؤشر التقدم */
+        .progress-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* خيارات الصف */
+        .options-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label, .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        /* منتقي الألوان */
+        .color-preview {
+            width: 50px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+        }
+
+        /* قائمة متعددة */
+        .multi-list {
+            flex: 1;
+            height: 120px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px;
+            overflow-y: auto;
+        }
+
+        .multi-list-item {
+            padding: 6px 10px;
+            margin: 2px 0;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .multi-list-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .multi-list-item.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        /* السجل */
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 8px;
+            padding: 12px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-time {
+            color: #6a9955;
+        }
+
+        /* أزرار */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* شريط الحالة */
+        .status-bar {
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        /* نظام الشبكة */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* استجابة */
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-group label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- شريط العنوان -->
+        <div class="title-bar">
+            <div class="title-left">
+                <span class="title-icon">🚀</span>
+                <div>
+                    <span class="title-text">MASTER TOOL</span>
+                    <span class="title-version">v2.0 - الويب</span>
+                </div>
+            </div>
+            <button class="zoom-btn" onclick="toggleZoom()">🗖</button>
+        </div>
+
+        <!-- التبويبات -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(0)">📋 أساسيات</button>
+            <button class="tab" onclick="switchTab(1)">⚙️ متقدم</button>
+            <button class="tab" onclick="switchTab(2)">📜 التاريخ</button>
+            <button class="tab" onclick="switchTab(3)">ℹ️ معلومات</button>
+        </div>
+
+        <!-- التبويب 1: الأساسيات -->
+        <div class="tab-content active" id="tab0">
+            <!-- مدخلات النصوص -->
+            <div class="panel">
+                <div class="panel-title">
+                    <span>✏️</span> مدخلات النصوص
+                </div>
+                <div class="input-group">
+                    <label>نص سطر واحد:</label>
+                    <input type="text" id="singleText" placeholder="أدخل نصك هنا">
+                </div>
+                <div class="input-group">
+                    <label>نص متعدد:</label>
+                    <textarea id="multiText" placeholder="سطر 1&#10;سطر 2&#10;سطر 3"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>قيمة رقمية:</label>
+                    <div class="number-control">
+                        <button class="number-btn" onclick="changeNumber(-1)">▼</button>
+                        <input type="number" id="numberValue" value="50" step="1">
+                        <button class="number-btn" onclick="changeNumber(1)">▲</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عناصر التحكم -->
+            <div class="panel">
+                <div class="panel-title">
+                    <span>🎮</span> عناصر التحكم
+                </div>
+                <div class="input-group">
+                    <label>شريط التمرير:</label>
+                    <div class="slider-container">
+                        <input type="range" id="sliderMain" min="0" max="100" value="50" oninput="updateSliderValue()">
+                        <span class="slider-value" id="sliderValue">50%</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>تمرير عمودي:</label>
+                    <div class="v-slider-container">
+                        <input type="range" id="sliderVertical" min="0" max="100" value="30" orient="vertical" style="height: 100px;" oninput="updateVerticalValue()">
+                        <span id="verticalValue">30</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>حالة التقدم:</label>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill">0%</div>
+                        </div>
+                        <span id="progressText">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قوائم وخيارات -->
+            <div class="panel">
+                <div class="panel-title">
+                    <span>📌</span> قوائم وخيارات
+                </div>
+                <div class="input-group">
+                    <label>قائمة منسدلة:</label>
+                    <select id="dropdown">
+                        <option>🔥 الخيار الأول</option>
+                        <option>✨ الخيار الثاني</option>
+                        <option>🎨 الخيار الثالث</option>
+                        <option>🚀 الخيار الرابع</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>قائمة متعددة:</label>
+                    <div class="multi-list" id="multiList">
+                        <div class="multi-list-item" data-value="1">عنصر 1</div>
+                        <div class="multi-list-item" data-value="2">عنصر 2</div>
+                        <div class="multi-list-item" data-value="3">عنصر 3</div>
+                        <div class="multi-list-item" data-value="4">عنصر 4</div>
+                        <div class="multi-list-item" data-value="5">عنصر 5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويب 2: متقدم -->
+        <div class="tab-content" id="tab1">
+            <div class="grid-2">
+                <!-- أزرار الراديو -->
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>🔘</span> أزرار الاختيار
+                    </div>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="radioOption" value="fast" checked> 🚀 خيار سريع
+                        </label>
+                        <label>
+                            <input type="radio" name="radioOption" value="medium"> ⚡ خيار متوسط
+                        </label>
+                        <label>
+                            <input type="radio" name="radioOption" value="precise"> 🎯 خيار دقيق
+                        </label>
+                    </div>
+                </div>
+
+                <!-- خانات الاختيار -->
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>✅</span> خانات الاختيار
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="effectVisual"> 🎨 تفعيل التأثير البصري
+                        </label>
+                        <label>
+                            <input type="checkbox" id="effectNoise"> 🔊 إضافة ضوضاء عشوائية
+                        </label>
+                        <label>
+                            <input type="checkbox" id="effectParallel"> ⚙️ تمكين المعالجة المتوازية
+                        </label>
+                        <label>
+                            <input type="checkbox" id="effectLog"> 📝 حفظ سجل العمليات
+                        </label>
+                    </div>
+                </div>
+
+                <!-- منتقي الألوان -->
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>🎨</span> منتقي الألوان
+                    </div>
+                    <div class="input-group">
+                        <label>اللون المختار:</label>
+                        <div class="color-preview" id="colorPreview" style="background-color: #cc2233;"></div>
+                        <input type="color" id="colorPicker" value="#cc2233" onchange="updateColor()">
+                        <span id="colorHex">#cc2233</span>
+                    </div>
+                </div>
+
+                <!-- معلومات الإصدار -->
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>📊</span> معلومات سريعة
+                    </div>
+                    <div id="quickInfo">
+                        <p>📱 المتصفح: <span id="browserInfo"></span></p>
+                        <p>🖥️ الشاشة: <span id="screenInfo"></span></p>
+                        <p>🌐 الوقت: <span id="timeInfo"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويب 3: التاريخ -->
+        <div class="tab-content" id="tab2">
+            <div class="panel">
+                <div class="panel-title">
+                    <span>📜</span> سجل العمليات
+                </div>
+                <div class="input-group">
+                    <input type="text" id="logInput" placeholder="أدخل رسالة جديدة" style="flex: 2;">
+                    <button class="btn btn-primary" onclick="addLog()">➕ إضافة سجل</button>
+                    <button class="btn btn-secondary" onclick="clearLogs()">🗑️ مسح الكل</button>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry">🚀 تم تشغيل MASTER UI - الويب</div>
+                    <div class="log-entry">💡 جاهز للاستخدام</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويب 4: معلومات -->
+        <div class="tab-content" id="tab3">
+            <div class="panel">
+                <div class="panel-title">
+                    <span>ℹ️</span> معلومات النظام
+                </div>
+                <div id="systemInfo" style="line-height: 1.8;">
+                    <!-- سيتم تعبئتها بواسطة JavaScript -->
+                </div>
+                <button class="btn btn-primary" onclick="refreshSystemInfo()" style="margin-top: 15px;">🔄 تحديث المعلومات</button>
+            </div>
+        </div>
+
+        <!-- الأزرار الرئيسية -->
+        <div style="padding: 20px; display: flex; gap: 10px; justify-content: center; border-top: 1px solid #e0e0e0;">
+            <button class="btn btn-primary" onclick="executeProcess()" style="min-width: 150px;">🚀 تنفيذ الأمر</button>
+            <button class="btn btn-success" onclick="saveSettings()" style="min-width: 120px;">💾 حفظ الإعدادات</button>
+            <button class="btn btn-secondary" onclick="loadSettings()" style="min-width: 120px;">📂 تحميل الإعدادات</button>
+            <button class="btn btn-danger" onclick="resetSettings()" style="min-width: 100px;">🔄 إعادة تعيين</button>
+        </div>
+
+        <!-- شريط الحالة -->
+        <div class="status-bar">
+            <span>✅ جاهز</span>
+            <span id="statusMessage">جاهز. اختر الإعدادات ثم اضغط تنفيذ</span>
+            <span id="progressStatus"></span>
+        </div>
+    </div>
+
+    <script>
+        // ========== المتغيرات العامة ==========
+        let savedConfig = {};
+        let currentProgress = 0;
+        let logEntries = [];
+
+        // ========== دوال التبويبات ==========
+        function switchTab(index) {
+            // تغيير التبويبات
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                if (i === index) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach((content, i) => {
+                if (i === index) content.classList.add('active');
+                else content.classList.remove('active');
+            });
+        }
+
+        // ========== دوال التحكم ==========
+        function changeNumber(delta) {
+            let input = document.getElementById('numberValue');
+            let newVal = parseFloat(input.value) + delta;
+            if (!isNaN(newVal)) input.value = newVal;
+        }
+
+        function updateSliderValue() {
+            let slider = document.getElementById('sliderMain');
+            let value = slider.value;
+            document.getElementById('sliderValue').textContent = value + '%';
+        }
+
+        function updateVerticalValue() {
+            let slider = document.getElementById('sliderVertical');
+            let value = slider.value;
+            document.getElementById('verticalValue').textContent = value;
+        }
+
+        function updateColor() {
+            let picker = document.getElementById('colorPicker');
+            let color = picker.value;
+            document.getElementById('colorPreview').style.backgroundColor = color;
+            document.getElementById('colorHex').textContent = color;
+        }
+
+        // ========== القائمة المتعددة ==========
+        function initMultiList() {
+            let items = document.querySelectorAll('.multi-list-item');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        }
+
+        function getSelectedMultiList() {
+            let selected = [];
+            document.querySelectorAll('.multi-list-item.selected').forEach(item => {
+                selected.push(item.textContent);
+            });
+            return selected;
+        }
+
+        // ========== دوال السجل ==========
+        function addLog(message = null) {
+            let logInput = document.getElementById('logInput');
+            let msg = message || logInput.value;
+            
+            if (!msg) return;
+            
+            let now = new Date();
+            let timeStr = now.toLocaleTimeString();
+            let logEntry = `[${timeStr}] ${msg}`;
+            
+            let logContainer = document.getElementById('logContainer');
+            let entryDiv = document.createElement('div');
+            entryDiv.className = 'log-entry';
+            entryDiv.innerHTML = `<span class="log-time">[${timeStr}]</span> ${msg}`;
+            logContainer.appendChild(entryDiv);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            if (logInput.value) logInput.value = '';
+            
+            // حفظ السجل
+            logEntries.push(logEntry);
+            if (logEntries.length > 50) logEntries.shift();
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            addLog('🗑️ تم مسح السجل');
+        }
+
+        // ========== دوال مؤشر التقدم ==========
+        function updateProgress(percent, message) {
+            currentProgress = percent;
+            let fill = document.getElementById('progressFill');
+            fill.style.width = percent + '%';
+            fill.textContent = percent + '%';
+            document.getElementById('progressText').textContent = percent + '%';
+            document.getElementById('statusMessage').textContent = message;
+            
+            let statusSpan = document.getElementById('progressStatus');
+            if (percent < 100) {
+                statusSpan.textContent = '⏳ ' + percent + '%';
+            } else {
+                statusSpan.textContent = '✅ مكتمل';
+            }
+        }
+
+        // ========== تنفيذ العملية ==========
+        async function executeProcess() {
+            try {
+                // جمع جميع الإعدادات
+                let settings = {
+                    singleText: document.getElementById('singleText').value,
+                    multiText: document.getElementById('multiText').value,
+                    number: parseFloat(document.getElementById('numberValue').value) || 0,
+                    sliderMain: document.getElementById('sliderMain').value,
+                    sliderVertical: document.getElementById('sliderVertical').value,
+                    dropdown: document.getElementById('dropdown').value,
+                    multiSelect: getSelectedMultiList(),
+                    radio: document.querySelector('input[name="radioOption"]:checked').value,
+                    effects: {
+                        visual: document.getElementById('effectVisual').checked,
+                        noise: document.getElementById('effectNoise').checked,
+                        parallel: document.getElementById('effectParallel').checked,
+                        log: document.getElementById('effectLog').checked
+                    },
+                    color: document.getElementById('colorPicker').value
+                };
+                
+                addLog('🚀 بدء تنفيذ العملية');
+                addLog('📊 الإعدادات: ' + JSON.stringify(settings).substring(0, 100) + '...');
+                
+                // محاكاة عملية طويلة
+                for (let i = 0; i <= 100; i += 10) {
+                    updateProgress(i, `جاري التنفيذ... ${i}%`);
+                    await sleep(50);
+                }
+                
+                updateProgress(100, '✅ اكتمل التنفيذ بنجاح!');
+                addLog('✅ اكتملت العملية بنجاح');
+                
+                // عرض ملخص
+                alert(`✅ تم التنفيذ بنجاح!\n\n` +
+                      `📝 النص: ${settings.singleText}\n` +
+                      `🔢 القيمة: ${settings.number}\n` +
+                      `🎚️ شريط التمرير: ${settings.sliderMain}%\n` +
+                      `🎨 اللون: ${settings.color}\n` +
+                      `⚡ الوضع: ${settings.radio}`);
+                
+                // إعادة تعيين شريط التقدم بعد 2 ثانية
+                setTimeout(() => {
+                    updateProgress(0, 'جاهز لتنفيذ جديد');
+                }, 2000);
+                
+            } catch(error) {
+                updateProgress(0, 'خطأ: ' + error.message);
+                addLog('❌ خطأ: ' + error.message);
+                alert('حدث خطأ: ' + error.message);
+            }
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ========== حفظ وتحميل الإعدادات ==========
+        function saveSettings() {
+            savedConfig = {
+                singleText: document.getElementById('singleText').value,
+                multiText: document.getElementById('multiText').value,
+                number: document.getElementById('numberValue').value,
+                sliderMain: document.getElementById('sliderMain').value,
+                sliderVertical: document.getElementById('sliderVertical').value,
+                dropdown: document.getElementById('dropdown').value,
+                radio: document.querySelector('input[name="radioOption"]:checked').value,
+                effectVisual: document.getElementById('effectVisual').checked,
+                effectNoise: document.getElementById('effectNoise').checked,
+                effectParallel: document.getElementById('effectParallel').checked,
+                effectLog: document.getElementById('effectLog').checked,
+                color: document.getElementById('colorPicker').value
+            };
+            
+            localStorage.setItem('masterUISettings', JSON.stringify(savedConfig));
+            addLog('💾 تم حفظ الإعدادات الحالية');
+            document.getElementById('statusMessage').textContent = 'تم حفظ الإعدادات بنجاح';
+            setTimeout(() => {
+                document.getElementById('statusMessage').textContent = 'جاهز. اختر الإعدادات ثم اضغط تنفيذ';
+            }, 2000);
+        }
+        
+        function loadSettings() {
+            let saved = localStorage.getItem('masterUISettings');
+            if (!saved) {
+                alert('لا توجد إعدادات محفوظة مسبقاً');
+                return;
+            }
+            
+            let settings = JSON.parse(saved);
+            
+            document.getElementById('singleText').value = settings.singleText || '';
+            document.getElementById('multiText').value = settings.multiText || '';
+            document.getElementById('numberValue').value = settings.number || '50';
+            document.getElementById('sliderMain').value = settings.sliderMain || 50;
+            document.getElementById('sliderVertical').value = settings.sliderVertical || 30;
+            document.getElementById('dropdown').value = settings.dropdown || '🔥 الخيار الأول';
+            
+            let radios = document.querySelectorAll('input[name="radioOption"]');
+            radios.forEach(radio => {
+                if (radio.value === settings.radio) radio.checked = true;
+            });
+            
+            document.getElementById('effectVisual').checked = settings.effectVisual || false;
+            document.getElementById('effectNoise').checked = settings.effectNoise || false;
+            document.getElementById('effectParallel').checked = settings.effectParallel || false;
+            document.getElementById('effectLog').checked = settings.effectLog || false;
+            
+            if (settings.color) {
+                document.getElementById('colorPicker').value = settings.color;
+                document.getElementById('colorPreview').style.backgroundColor = settings.color;
+                document.getElementById('colorHex').textContent = settings.color;
+            }
+            
+            updateSliderValue();
+            updateVerticalValue();
+            
+            addLog('📂 تم تحميل الإعدادات المحفوظة');
+            document.getElementById('statusMessage').textContent = 'تم تحميل الإعدادات بنجاح';
+            setTimeout(() => {
+                document.getElementById('statusMessage').textContent = 'جاهز. اختر الإعدادات ثم اضغط تنفيذ';
+            }, 2000);
+        }
+        
+        function resetSettings() {
+            if (confirm('هل تريد إعادة تعيين جميع الإعدادات إلى القيم الافتراضية؟')) {
+                document.getElementById('singleText').value = '';
+                document.getElementById('multiText').value = '';
+                document.getElementById('numberValue').value = '50';
+                document.getElementById('sliderMain').value = 50;
+                document.getElementById('sliderVertical').value = 30;
+                document.getElementById('dropdown').value = '🔥 الخيار الأول';
+                document.querySelector('input[value="fast"]').checked = true;
+                document.getElementById('effectVisual').checked = false;
+                document.getElementById('effectNoise').checked = false;
+                document.getElementById('effectParallel').checked = false;
+                document.getElementById('effectLog').checked = false;
+                document.getElementById('colorPicker').value = '#cc2233';
+                document.getElementById('colorPreview').style.backgroundColor = '#cc2233';
+                document.getElementById('colorHex').textContent = '#cc2233';
+                
+                updateSliderValue();
+                updateVerticalValue();
+                
+                addLog('🔄 تم إعادة تعيين جميع الإعدادات');
+                document.getElementById('statusMessage').textContent = 'تم إعادة التعيين';
+                setTimeout(() => {
+                    document.getElementById('statusMessage').textContent = 'جاهز. اختر الإعدادات ثم اضغط تنفيذ';
+                }, 2000);
+            }
+        }
+
+        // ========== معلومات النظام ==========
+        function refreshSystemInfo() {
+            let info = `
+                <p>🔹 <strong>المتصفح:</strong> ${navigator.userAgent.split(' ').slice(-2).join(' ')}</p>
+                <p>🔹 <strong>اللغة:</strong> ${navigator.language}</p>
+                <p>🔹 <strong>دقة الشاشة:</strong> ${screen.width} × ${screen.height}</p>
+                <p>🔹 <strong>عمق الألوان:</strong> ${screen.colorDepth} بت</p>
+                <p>🔹 <strong>حجم الذاكرة:</strong> ${navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'غير متوفر'}</p>
+                <p>🔹 <strong>المعالج:</strong> ${navigator.hardwareConcurrency ? navigator.hardwareConcurrency + ' نوى' : 'غير متوفر'}</p>
+                <p>🔹 <strong>الوقت الحالي:</strong> ${new Date().toLocaleString()}</p>
+                <p>🔹 <strong>اتصال بالإنترنت:</strong> ${navigator.onLine ? '🟢 متصل' : '🔴 غير متصل'}</p>
+            `;
+            document.getElementById('systemInfo').innerHTML = info;
+            
+            // معلومات سريعة
+            document.getElementById('browserInfo').textContent = navigator.userAgent.split(' ').slice(-2).join(' ');
+            document.getElementById('screenInfo').textContent = `${screen.width}×${screen.height}`;
+            document.getElementById('timeInfo').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function toggleZoom() {
+            let container = document.querySelector('.app-container');
+            if (container.style.transform === 'scale(1.1)') {
+                container.style.transform = 'scale(1)';
+                container.style.transition = 'all 0.3s';
+            } else {
+                container.style.transform = 'scale(1.1)';
+                container.style.transition = 'all 0.3s';
+            }
+        }
+
+        // ========== إضافة اختصارات لوحة المفاتيح ==========
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                alert(`🚀 MASTER UI v2.0 (ويب)\n\n` +
+                      `هذه الأداة تحتوي على كل المميزات:\n` +
+                      `✓ مدخلات نصية\n` +
+                      `✓ أزرار وخيارات\n` +
+                      `✓ قوائم منسدلة\n` +
+                      `✓ شرائط تمرير\n` +
+                      `✓ مؤشرات تقدم\n` +
+                      `✓ منتقي ألوان\n` +
+                      `✓ سجل عمليات\n` +
+                      `✓ حفظ وتحميل\n` +
+                      `✓ اختصارات لوحة مفاتيح\n\n` +
+                      `الاختصارات:\n` +
+                      `• F1: هذه المساعدة\n` +
+                      `• Ctrl+S: حفظ الإعدادات\n` +
+                      `• Ctrl+L: تحميل الإعدادات\n` +
+                      `• F5: تنفيذ العملية`);
+            } else if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveSettings();
+            } else if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                loadSettings();
+            } else if (e.key === 'F5') {
+                e.preventDefault();
+                executeProcess();
+            }
+        });
+
+        // ========== التهيئة ==========
+        function init() {
+            initMultiList();
+            refreshSystemInfo();
+            updateSliderValue();
+            updateVerticalValue();
+            updateColor();
+            
+            // إضافة سجل الترحيب
+            addLog('🎨 تم تحميل MASTER UI - نسخة الويب');
+            addLog('💡 تلميح: اضغط F1 للمساعدة');
+            addLog('💡 تلميح: Ctrl+S لحفظ الإعدادات, Ctrl+L للتحميل');
+        }
+        
+        // تشغيل التهيئة
+        init();
+    </script>
+</body>
+</html>
